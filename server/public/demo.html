@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PROVED v1 · Connexion PC</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f4f1ea;
+        --paper-strong: #efe8dd;
+        --paper-deep: #e5dccf;
+        --ink: #1d1a16;
+        --ink-soft: #403a33;
+        --line: rgba(34, 29, 24, 0.18);
+        --line-strong: rgba(34, 29, 24, 0.32);
+        --shadow: 0 22px 50px rgba(29, 26, 22, 0.14);
+        --shadow-soft: 0 10px 25px rgba(29, 26, 22, 0.08);
+        --accent: #7e756b;
+        --accent-soft: #cfc4b8;
+        --success: #4a6b57;
+        --warning: #8b6a3e;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        min-height: 100vh;
+        background: radial-gradient(circle at top left, #faf7f1, var(--paper));
+        font-family: "SF Pro Rounded", "Segoe UI Rounded", "Arial Rounded MT Bold",
+          "Helvetica Neue", Arial, sans-serif;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        overflow: hidden;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: absolute;
+        width: 360px;
+        height: 360px;
+        background: rgba(15, 13, 10, 0.08);
+        filter: blur(0.5px);
+        border-radius: 48% 52% 60% 40% / 50% 45% 55% 50%;
+        z-index: 0;
+      }
+
+      body::before {
+        top: -140px;
+        left: -120px;
+      }
+
+      body::after {
+        bottom: -160px;
+        right: -120px;
+      }
+
+      .modal {
+        width: min(560px, 92vw);
+        height: min(560px, 86vh);
+        background: linear-gradient(180deg, #fdfbf8 0%, var(--paper-strong) 100%);
+        border: 2.5px solid var(--line-strong);
+        border-radius: 30px;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .modal::before {
+        content: "";
+        position: absolute;
+        inset: 12px;
+        border-radius: 24px;
+        border: 1.5px solid rgba(34, 29, 24, 0.08);
+        pointer-events: none;
+      }
+
+      .modal-header {
+        padding: 28px 32px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 16px;
+        border: 2px solid var(--line-strong);
+        background: #f7f3ed;
+        box-shadow: var(--shadow-soft);
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: var(--ink-soft);
+      }
+
+      .brand h1 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      .status-pill {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 2px solid var(--line-strong);
+        background: #f8f4ee;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--ink-soft);
+      }
+
+      .modal-body {
+        padding: 0 32px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        overflow: auto;
+      }
+
+      .hero {
+        border: 2px solid var(--line-strong);
+        border-radius: 24px;
+        background: #f9f6f1;
+        padding: 20px;
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .hero-text {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .hero-text h2 {
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      .hero-text p {
+        font-size: 14px;
+        color: var(--ink-soft);
+        line-height: 1.4;
+      }
+
+      .state-rail {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+      }
+
+      .state-dot {
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        border: 1.5px solid var(--line-strong);
+      }
+
+      .state-dot.active {
+        background: var(--accent);
+      }
+
+      .qr-panel {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .panel-card {
+        border: 2px solid var(--line-strong);
+        border-radius: 20px;
+        background: #fbf9f4;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        box-shadow: var(--shadow-soft);
+      }
+
+      .panel-card h3 {
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .panel-card p {
+        font-size: 13px;
+        color: var(--ink-soft);
+        line-height: 1.4;
+      }
+
+      .qr-frame {
+        border-radius: 18px;
+        border: 2px dashed var(--line-strong);
+        background: repeating-linear-gradient(
+          45deg,
+          #f5f1eb,
+          #f5f1eb 6px,
+          #ece4d8 6px,
+          #ece4d8 12px
+        );
+        display: grid;
+        place-items: center;
+        flex: 1;
+        min-height: 180px;
+      }
+
+      .qr-box {
+        width: 120px;
+        height: 120px;
+        border-radius: 16px;
+        border: 2px solid var(--line-strong);
+        background: #fdfbf7;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        color: var(--ink-soft);
+      }
+
+      .status-card {
+        border-radius: 18px;
+        border: 2px solid var(--line-strong);
+        padding: 16px;
+        background: #f7f3ed;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .status-label {
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      .status-badge {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 2px solid var(--line-strong);
+        background: #fbf7f1;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+
+      .status-bar {
+        height: 12px;
+        border-radius: 999px;
+        background: #ede5da;
+        border: 1.5px solid var(--line-strong);
+        overflow: hidden;
+      }
+
+      .status-bar span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #6f6a63, #a79c90);
+      }
+
+      .action-row {
+        display: flex;
+        gap: 12px;
+      }
+
+      .action-btn {
+        flex: 1;
+        border-radius: 16px;
+        border: 2px solid var(--line-strong);
+        padding: 12px 16px;
+        font-weight: 700;
+        font-size: 14px;
+        background: #f7f3ed;
+        color: var(--ink);
+      }
+
+      .action-btn.secondary {
+        background: #fbf9f4;
+      }
+
+      .state-view {
+        display: none;
+      }
+
+      body[data-state="pending"] .state-pending,
+      body[data-state="qr-ready"] .state-qr-ready,
+      body[data-state="waiting"] .state-waiting,
+      body[data-state="verified"] .state-verified,
+      body[data-state="expired"] .state-expired {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .state-pending .status-badge {
+        background: #f5eede;
+        color: var(--warning);
+      }
+
+      .state-qr-ready .status-badge {
+        background: #efe7dc;
+      }
+
+      .state-waiting .status-badge {
+        background: #f0e8dd;
+      }
+
+      .state-verified .status-badge {
+        background: #e1ebe4;
+        color: var(--success);
+      }
+
+      .state-expired .status-badge {
+        background: #efe3d4;
+        color: var(--warning);
+      }
+
+      .state-verified .status-bar span {
+        background: linear-gradient(90deg, #4a6b57, #7f9a86);
+      }
+
+      .state-expired .status-bar span {
+        background: linear-gradient(90deg, #8b6a3e, #b39060);
+      }
+
+      @media (max-width: 640px) {
+        .modal {
+          height: min(600px, 92vh);
+        }
+
+        .modal-header,
+        .modal-body {
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+
+        .qr-panel {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body data-state="qr-ready">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="brand">
+          <div class="brand-mark">P</div>
+          <h1>PROVED v1</h1>
+        </div>
+        <div class="status-pill">Connexion PC</div>
+      </div>
+      <div class="modal-body">
+        <div class="hero">
+          <div class="hero-text">
+            <h2>Continuer sur mobile</h2>
+            <p>Votre action est protégée par une preuve humaine volontaire.</p>
+          </div>
+          <div class="status-card">
+            <div class="status-row">
+              <span class="status-label">État actuel</span>
+              <span class="status-badge">EN COURS</span>
+            </div>
+            <div class="status-bar"><span style="width: 62%"></span></div>
+          </div>
+        </div>
+
+        <div class="state-rail" aria-hidden="true">
+          <div class="state-dot"></div>
+          <div class="state-dot active"></div>
+          <div class="state-dot"></div>
+          <div class="state-dot"></div>
+          <div class="state-dot"></div>
+        </div>
+
+        <div class="state-view state-pending">
+          <div class="panel-card">
+            <h3>Préparation sécurisée</h3>
+            <p>Nous préparons votre session de connexion sur cet appareil.</p>
+          </div>
+          <div class="status-card">
+            <div class="status-row">
+              <span class="status-label">Préparation</span>
+              <span class="status-badge">PENDING</span>
+            </div>
+            <div class="status-bar"><span style="width: 28%"></span></div>
+          </div>
+        </div>
+
+        <div class="state-view state-qr-ready">
+          <div class="qr-panel">
+            <div class="panel-card">
+              <h3>Scanner le QR</h3>
+              <p>Ouvrez votre mobile pour confirmer la connexion en toute confiance.</p>
+              <div class="action-row">
+                <button class="action-btn">Activer mobile</button>
+                <button class="action-btn secondary">Besoin d’aide</button>
+              </div>
+            </div>
+            <div class="panel-card">
+              <div class="qr-frame">
+                <div class="qr-box">QR</div>
+              </div>
+              <p>Le QR reste valable quelques instants.</p>
+            </div>
+          </div>
+          <div class="status-card">
+            <div class="status-row">
+              <span class="status-label">QR prêt</span>
+              <span class="status-badge">READY</span>
+            </div>
+            <div class="status-bar"><span style="width: 52%"></span></div>
+          </div>
+        </div>
+
+        <div class="state-view state-waiting">
+          <div class="panel-card">
+            <h3>En attente</h3>
+            <p>Nous attendons la validation depuis votre mobile.</p>
+          </div>
+          <div class="status-card">
+            <div class="status-row">
+              <span class="status-label">Validation mobile</span>
+              <span class="status-badge">WAITING</span>
+            </div>
+            <div class="status-bar"><span style="width: 74%"></span></div>
+          </div>
+        </div>
+
+        <div class="state-view state-verified">
+          <div class="panel-card">
+            <h3>Connexion vérifiée</h3>
+            <p>Votre preuve humaine est confirmée sur ce navigateur.</p>
+          </div>
+          <div class="status-card">
+            <div class="status-row">
+              <span class="status-label">Succès</span>
+              <span class="status-badge">VERIFIED</span>
+            </div>
+            <div class="status-bar"><span style="width: 100%"></span></div>
+          </div>
+        </div>
+
+        <div class="state-view state-expired">
+          <div class="panel-card">
+            <h3>QR expiré</h3>
+            <p>Relancez la demande pour obtenir un nouveau QR.</p>
+          </div>
+          <div class="status-card">
+            <div class="status-row">
+              <span class="status-label">Expiration</span>
+              <span class="status-badge">RETRY</span>
+            </div>
+            <div class="status-bar"><span style="width: 40%"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
