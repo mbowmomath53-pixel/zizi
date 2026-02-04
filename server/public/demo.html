@@ -3,23 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PROVED v1 · Connexion PC</title>
+    <title>PROVED v1 · Connect</title>
     <style>
       :root {
         color-scheme: light;
-        --paper: #f4f1ea;
-        --paper-strong: #efe8dd;
-        --paper-deep: #e5dccf;
-        --ink: #1d1a16;
-        --ink-soft: #403a33;
-        --line: rgba(34, 29, 24, 0.18);
-        --line-strong: rgba(34, 29, 24, 0.32);
-        --shadow: 0 22px 50px rgba(29, 26, 22, 0.14);
-        --shadow-soft: 0 10px 25px rgba(29, 26, 22, 0.08);
-        --accent: #7e756b;
-        --accent-soft: #cfc4b8;
-        --success: #4a6b57;
-        --warning: #8b6a3e;
+        --paper: #f4efe6;
+        --paper-soft: #f7f3eb;
+        --paper-deep: #efe9de;
+        --ink: #2a2d33;
+        --ink-soft: rgba(28, 30, 34, 0.62);
+        --muted-line: rgba(28, 30, 34, 0.08);
+        --shadow-soft: 0 24px 60px rgba(28, 30, 34, 0.12);
+        --shadow-fine: 0 10px 24px rgba(28, 30, 34, 0.08);
+        --accent: #9dafd6;
+        --accent-soft: rgba(157, 175, 214, 0.25);
+        --overlay: rgba(28, 30, 34, 0.18);
       }
 
       * {
@@ -30,14 +28,14 @@
 
       body {
         min-height: 100vh;
-        background: radial-gradient(circle at top left, #faf7f1, var(--paper));
-        font-family: "SF Pro Rounded", "Segoe UI Rounded", "Arial Rounded MT Bold",
-          "Helvetica Neue", Arial, sans-serif;
+        font-family: "SF Pro Rounded", "ui-rounded", "Segoe UI Rounded",
+          "Arial Rounded MT Bold", "Helvetica Neue", Arial, sans-serif;
         color: var(--ink);
+        background: var(--paper);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 24px;
+        padding: clamp(18px, 3vw, 40px);
         overflow: hidden;
       }
 
@@ -45,448 +43,426 @@
       body::after {
         content: "";
         position: absolute;
-        width: 360px;
-        height: 360px;
-        background: rgba(15, 13, 10, 0.08);
-        filter: blur(0.5px);
-        border-radius: 48% 52% 60% 40% / 50% 45% 55% 50%;
-        z-index: 0;
-      }
-
-      body::before {
-        top: -140px;
-        left: -120px;
-      }
-
-      body::after {
-        bottom: -160px;
-        right: -120px;
-      }
-
-      .modal {
-        width: min(560px, 92vw);
-        height: min(560px, 86vh);
-        background: linear-gradient(180deg, #fdfbf8 0%, var(--paper-strong) 100%);
-        border: 2.5px solid var(--line-strong);
-        border-radius: 30px;
-        box-shadow: var(--shadow);
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        overflow: hidden;
-        z-index: 1;
-      }
-
-      .modal::before {
-        content: "";
-        position: absolute;
-        inset: 12px;
-        border-radius: 24px;
-        border: 1.5px solid rgba(34, 29, 24, 0.08);
+        inset: 0;
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(28, 30, 34, 0.03) 0,
+          rgba(28, 30, 34, 0.03) 1px,
+          transparent 1px,
+          transparent 140px
+        );
+        opacity: 0.55;
         pointer-events: none;
       }
 
-      .modal-header {
-        padding: 28px 32px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
+      .blobs::before,
+      .blobs::after,
+      .blob-3 {
+        content: "";
+        position: absolute;
+        background: rgba(28, 30, 34, 0.07);
+        border-radius: 48% 52% 60% 40% / 52% 45% 55% 48%;
+        filter: blur(0.3px);
+        pointer-events: none;
       }
 
-      .brand {
+      .blobs::before {
+        width: clamp(220px, 26vw, 340px);
+        height: clamp(220px, 26vw, 340px);
+        top: -12%;
+        left: -8%;
+      }
+
+      .blobs::after {
+        width: clamp(200px, 22vw, 300px);
+        height: clamp(200px, 22vw, 300px);
+        bottom: -16%;
+        right: -10%;
+      }
+
+      .blob-3 {
+        width: clamp(180px, 20vw, 260px);
+        height: clamp(180px, 20vw, 260px);
+        bottom: -12%;
+        left: -6%;
+        opacity: 0.7;
+      }
+
+      .screen {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+      }
+
+      .screen.is-active {
         display: flex;
+      }
+
+      .connect-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: clamp(18px, 3vw, 28px);
+        text-align: center;
+        max-width: 560px;
+      }
+
+      .connect-card h1 {
+        font-size: clamp(34px, 4vw, 44px);
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+
+      .connect-meta {
+        display: inline-flex;
         align-items: center;
         gap: 12px;
-      }
-
-      .brand-mark {
-        width: 44px;
-        height: 44px;
-        border-radius: 16px;
-        border: 2px solid var(--line-strong);
-        background: #f7f3ed;
-        box-shadow: var(--shadow-soft);
-        display: grid;
-        place-items: center;
-        font-weight: 700;
-        letter-spacing: 0.5px;
+        font-size: clamp(16px, 2.1vw, 18px);
         color: var(--ink-soft);
       }
 
-      .brand h1 {
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--ink);
-      }
-
-      .status-pill {
-        padding: 8px 14px;
+      .badge {
+        padding: 6px 14px;
         border-radius: 999px;
-        border: 2px solid var(--line-strong);
-        background: #f8f4ee;
-        font-size: 12px;
+        border: 1px solid var(--accent);
+        color: #5c6f98;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: var(--ink-soft);
-      }
-
-      .modal-body {
-        padding: 0 32px 32px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        overflow: auto;
-      }
-
-      .hero {
-        border: 2px solid var(--line-strong);
-        border-radius: 24px;
-        background: #f9f6f1;
-        padding: 20px;
-        box-shadow: var(--shadow-soft);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 18px;
-      }
-
-      .hero-text {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-
-      .hero-text h2 {
-        font-size: 22px;
-        font-weight: 800;
-      }
-
-      .hero-text p {
         font-size: 14px;
-        color: var(--ink-soft);
-        line-height: 1.4;
+        background: rgba(157, 175, 214, 0.12);
       }
 
-      .state-rail {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 10px;
-      }
-
-      .state-dot {
-        height: 8px;
+      .connect-btn {
         border-radius: 999px;
-        background: var(--accent-soft);
-        border: 1.5px solid var(--line-strong);
-      }
-
-      .state-dot.active {
-        background: var(--accent);
-      }
-
-      .qr-panel {
-        display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: 18px;
-        align-items: stretch;
-      }
-
-      .panel-card {
-        border: 2px solid var(--line-strong);
-        border-radius: 20px;
-        background: #fbf9f4;
-        padding: 18px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        box-shadow: var(--shadow-soft);
-      }
-
-      .panel-card h3 {
-        font-size: 16px;
+        padding: 16px 40px;
+        font-size: clamp(16px, 2.1vw, 18px);
         font-weight: 700;
+        background: linear-gradient(180deg, #faf9f7 0%, #f1ece3 100%);
+        border: 1px solid var(--accent);
+        color: #3c4759;
+        box-shadow: 0 12px 28px rgba(157, 175, 214, 0.35);
+        cursor: pointer;
+        position: relative;
       }
 
-      .panel-card p {
-        font-size: 13px;
-        color: var(--ink-soft);
-        line-height: 1.4;
-      }
-
-      .qr-frame {
-        border-radius: 18px;
-        border: 2px dashed var(--line-strong);
-        background: repeating-linear-gradient(
-          45deg,
-          #f5f1eb,
-          #f5f1eb 6px,
-          #ece4d8 6px,
-          #ece4d8 12px
+      .connect-btn::after {
+        content: "";
+        position: absolute;
+        inset: 1px;
+        border-radius: inherit;
+        background: linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0.85),
+          rgba(255, 255, 255, 0.05)
         );
-        display: grid;
-        place-items: center;
-        flex: 1;
-        min-height: 180px;
+        opacity: 0.5;
+        pointer-events: none;
       }
 
-      .qr-box {
-        width: 120px;
-        height: 120px;
-        border-radius: 16px;
-        border: 2px solid var(--line-strong);
-        background: #fdfbf7;
-        display: grid;
-        place-items: center;
-        font-weight: 700;
-        color: var(--ink-soft);
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: var(--overlay);
+        backdrop-filter: blur(6px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 5;
       }
 
-      .status-card {
-        border-radius: 18px;
-        border: 2px solid var(--line-strong);
-        padding: 16px;
-        background: #f7f3ed;
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        opacity: 0;
+        transform: scale(0.98);
+        transition: opacity 0.22s ease, transform 0.22s ease;
+        z-index: 6;
+      }
+
+      body.modal-open .overlay,
+      body[data-view="modal"] .overlay {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      body.modal-open .modal,
+      body[data-view="modal"] .modal {
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: auto;
+      }
+
+      body.modal-open {
+        overflow: hidden;
+      }
+
+      .modal-card {
+        width: min(92vw, clamp(540px, 34vw, 580px));
+        height: min(88vh, clamp(480px, 32vw, 540px));
+        background: linear-gradient(180deg, #fbfaf8 0%, #f2ede5 100%);
+        border-radius: 28px;
+        box-shadow: var(--shadow-soft);
+        padding: clamp(20px, 3vw, 26px);
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 18px;
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 700;
+        font-size: 18px;
+        color: #2f333a;
+      }
+
+      .close-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(28, 30, 34, 0.06);
+        color: rgba(28, 30, 34, 0.5);
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      .qr-shell {
+        border-radius: 22px;
+        border: 1px solid rgba(28, 30, 34, 0.1);
+        background: #ffffff;
+        padding: clamp(18px, 2.4vw, 22px);
+        display: grid;
+        place-items: center;
+        box-shadow: var(--shadow-fine);
+      }
+
+      .qr-svg {
+        width: clamp(180px, 18vw, 220px);
+        height: clamp(180px, 18vw, 220px);
+        background: #ffffff;
       }
 
       .status-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-      }
-
-      .status-label {
-        font-weight: 700;
         font-size: 14px;
+        color: #2f333a;
+        padding: 4px 2px;
       }
 
-      .status-badge {
-        padding: 6px 10px;
+      .timer-pill {
+        padding: 6px 12px;
         border-radius: 999px;
-        border: 2px solid var(--line-strong);
-        background: #fbf7f1;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
+        border: 1px solid rgba(28, 30, 34, 0.12);
+        background: #f7f4ef;
+        font-weight: 600;
+        color: #4a4f58;
+        min-width: 64px;
+        text-align: center;
       }
 
-      .status-bar {
-        height: 12px;
-        border-radius: 999px;
-        background: #ede5da;
-        border: 1.5px solid var(--line-strong);
-        overflow: hidden;
-      }
-
-      .status-bar span {
-        display: block;
-        height: 100%;
-        border-radius: inherit;
-        background: linear-gradient(90deg, #6f6a63, #a79c90);
-      }
-
-      .action-row {
+      .modal-footer {
         display: flex;
-        gap: 12px;
-      }
-
-      .action-btn {
-        flex: 1;
-        border-radius: 16px;
-        border: 2px solid var(--line-strong);
-        padding: 12px 16px;
-        font-weight: 700;
+        align-items: center;
+        justify-content: space-between;
         font-size: 14px;
-        background: #f7f3ed;
-        color: var(--ink);
+        color: var(--ink-soft);
+        border-top: 1px solid rgba(28, 30, 34, 0.08);
+        padding-top: 12px;
       }
 
-      .action-btn.secondary {
-        background: #fbf9f4;
+      .modal-link {
+        color: #5d6470;
+        text-decoration: none;
+        font-weight: 600;
       }
 
-      .state-view {
+      .modal-link.secondary {
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(28, 30, 34, 0.12);
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .tips {
         display: none;
       }
 
-      body[data-state="pending"] .state-pending,
-      body[data-state="qr-ready"] .state-qr-ready,
-      body[data-state="waiting"] .state-waiting,
-      body[data-state="verified"] .state-verified,
-      body[data-state="expired"] .state-expired {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
+      .seller-backdrop {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        z-index: 0;
+        opacity: 0.9;
       }
 
-      .state-pending .status-badge {
-        background: #f5eede;
-        color: var(--warning);
+      .seller-card {
+        width: min(88vw, 720px);
+        height: min(72vh, 520px);
+        background: linear-gradient(180deg, #f9f7f2 0%, #efe9df 100%);
+        border-radius: 32px;
+        box-shadow: var(--shadow-fine);
+        border: 1px solid rgba(28, 30, 34, 0.08);
+        position: relative;
       }
 
-      .state-qr-ready .status-badge {
-        background: #efe7dc;
+      .seller-card::before,
+      .seller-card::after {
+        content: "";
+        position: absolute;
+        width: 140px;
+        height: 16px;
+        border-radius: 999px;
+        background: rgba(28, 30, 34, 0.05);
+        left: 12%;
       }
 
-      .state-waiting .status-badge {
-        background: #f0e8dd;
+      .seller-card::before {
+        top: 22%;
       }
 
-      .state-verified .status-badge {
-        background: #e1ebe4;
-        color: var(--success);
+      .seller-card::after {
+        top: 36%;
       }
 
-      .state-expired .status-badge {
-        background: #efe3d4;
-        color: var(--warning);
-      }
-
-      .state-verified .status-bar span {
-        background: linear-gradient(90deg, #4a6b57, #7f9a86);
-      }
-
-      .state-expired .status-bar span {
-        background: linear-gradient(90deg, #8b6a3e, #b39060);
-      }
-
-      @media (max-width: 640px) {
-        .modal {
-          height: min(600px, 92vh);
+      @media (max-width: 680px) {
+        .modal-card {
+          height: min(92vh, 520px);
         }
 
-        .modal-header,
-        .modal-body {
-          padding-left: 20px;
-          padding-right: 20px;
-        }
-
-        .qr-panel {
-          grid-template-columns: 1fr;
+        .connect-meta {
+          flex-wrap: wrap;
+          justify-content: center;
         }
       }
     </style>
   </head>
-  <body data-state="qr-ready">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modal-header">
-        <div class="brand">
-          <div class="brand-mark">P</div>
-          <h1>PROVED v1</h1>
+  <body data-view="connect">
+    <div class="blobs">
+      <div class="blob-3" aria-hidden="true"></div>
+    </div>
+
+    <main class="screen connect-screen is-active" data-screen="connect">
+      <div class="connect-card">
+        <h1>Connect</h1>
+        <div class="connect-meta">
+          <span>Connect in 2 sec.</span>
+          <span class="badge">PROVED</span>
+          <span>Proof of you.</span>
         </div>
-        <div class="status-pill">Connexion PC</div>
+        <button class="connect-btn" type="button">Connect with PROVED</button>
       </div>
-      <div class="modal-body">
-        <div class="hero">
-          <div class="hero-text">
-            <h2>Continuer sur mobile</h2>
-            <p>Votre action est protégée par une preuve humaine volontaire.</p>
-          </div>
-          <div class="status-card">
-            <div class="status-row">
-              <span class="status-label">État actuel</span>
-              <span class="status-badge">EN COURS</span>
-            </div>
-            <div class="status-bar"><span style="width: 62%"></span></div>
-          </div>
-        </div>
+    </main>
 
-        <div class="state-rail" aria-hidden="true">
-          <div class="state-dot"></div>
-          <div class="state-dot active"></div>
-          <div class="state-dot"></div>
-          <div class="state-dot"></div>
-          <div class="state-dot"></div>
-        </div>
+    <section class="screen modal-screen" data-screen="modal">
+      <div class="seller-backdrop" aria-hidden="true">
+        <div class="seller-card"></div>
+      </div>
+    </section>
 
-        <div class="state-view state-pending">
-          <div class="panel-card">
-            <h3>Préparation sécurisée</h3>
-            <p>Nous préparons votre session de connexion sur cet appareil.</p>
-          </div>
-          <div class="status-card">
-            <div class="status-row">
-              <span class="status-label">Préparation</span>
-              <span class="status-badge">PENDING</span>
-            </div>
-            <div class="status-bar"><span style="width: 28%"></span></div>
-          </div>
-        </div>
+    <div class="overlay" data-close="overlay"></div>
 
-        <div class="state-view state-qr-ready">
-          <div class="qr-panel">
-            <div class="panel-card">
-              <h3>Scanner le QR</h3>
-              <p>Ouvrez votre mobile pour confirmer la connexion en toute confiance.</p>
-              <div class="action-row">
-                <button class="action-btn">Activer mobile</button>
-                <button class="action-btn secondary">Besoin d’aide</button>
-              </div>
-            </div>
-            <div class="panel-card">
-              <div class="qr-frame">
-                <div class="qr-box">QR</div>
-              </div>
-              <p>Le QR reste valable quelques instants.</p>
-            </div>
-          </div>
-          <div class="status-card">
-            <div class="status-row">
-              <span class="status-label">QR prêt</span>
-              <span class="status-badge">READY</span>
-            </div>
-            <div class="status-bar"><span style="width: 52%"></span></div>
-          </div>
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <span>Approve connection</span>
+          <button class="close-btn" type="button" aria-label="Close">×</button>
         </div>
-
-        <div class="state-view state-waiting">
-          <div class="panel-card">
-            <h3>En attente</h3>
-            <p>Nous attendons la validation depuis votre mobile.</p>
-          </div>
-          <div class="status-card">
-            <div class="status-row">
-              <span class="status-label">Validation mobile</span>
-              <span class="status-badge">WAITING</span>
-            </div>
-            <div class="status-bar"><span style="width: 74%"></span></div>
-          </div>
+        <div class="qr-shell">
+          <svg
+            class="qr-svg"
+            viewBox="0 0 21 21"
+            shape-rendering="crispEdges"
+            aria-hidden="true"
+          >
+            <rect width="21" height="21" fill="#fff" />
+            <rect x="0" y="0" width="7" height="7" fill="#111" />
+            <rect x="1" y="1" width="5" height="5" fill="#fff" />
+            <rect x="2" y="2" width="3" height="3" fill="#111" />
+            <rect x="14" y="0" width="7" height="7" fill="#111" />
+            <rect x="15" y="1" width="5" height="5" fill="#fff" />
+            <rect x="16" y="2" width="3" height="3" fill="#111" />
+            <rect x="0" y="14" width="7" height="7" fill="#111" />
+            <rect x="1" y="15" width="5" height="5" fill="#fff" />
+            <rect x="2" y="16" width="3" height="3" fill="#111" />
+            <rect x="9" y="3" width="1" height="1" fill="#111" />
+            <rect x="11" y="3" width="1" height="1" fill="#111" />
+            <rect x="9" y="5" width="1" height="1" fill="#111" />
+            <rect x="10" y="6" width="1" height="1" fill="#111" />
+            <rect x="12" y="6" width="1" height="1" fill="#111" />
+            <rect x="8" y="8" width="1" height="1" fill="#111" />
+            <rect x="10" y="8" width="1" height="1" fill="#111" />
+            <rect x="12" y="8" width="1" height="1" fill="#111" />
+            <rect x="9" y="10" width="1" height="1" fill="#111" />
+            <rect x="11" y="10" width="1" height="1" fill="#111" />
+            <rect x="8" y="12" width="1" height="1" fill="#111" />
+            <rect x="10" y="12" width="1" height="1" fill="#111" />
+            <rect x="12" y="12" width="1" height="1" fill="#111" />
+            <rect x="9" y="14" width="1" height="1" fill="#111" />
+            <rect x="11" y="14" width="1" height="1" fill="#111" />
+            <rect x="13" y="14" width="1" height="1" fill="#111" />
+            <rect x="8" y="16" width="1" height="1" fill="#111" />
+            <rect x="10" y="16" width="1" height="1" fill="#111" />
+            <rect x="12" y="16" width="1" height="1" fill="#111" />
+            <rect x="9" y="18" width="1" height="1" fill="#111" />
+            <rect x="11" y="18" width="1" height="1" fill="#111" />
+            <rect x="13" y="18" width="1" height="1" fill="#111" />
+          </svg>
         </div>
-
-        <div class="state-view state-verified">
-          <div class="panel-card">
-            <h3>Connexion vérifiée</h3>
-            <p>Votre preuve humaine est confirmée sur ce navigateur.</p>
-          </div>
-          <div class="status-card">
-            <div class="status-row">
-              <span class="status-label">Succès</span>
-              <span class="status-badge">VERIFIED</span>
-            </div>
-            <div class="status-bar"><span style="width: 100%"></span></div>
-          </div>
+        <div class="status-row">
+          <span>Waiting for scan</span>
+          <span class="timer-pill">01:28</span>
         </div>
-
-        <div class="state-view state-expired">
-          <div class="panel-card">
-            <h3>QR expiré</h3>
-            <p>Relancez la demande pour obtenir un nouveau QR.</p>
-          </div>
-          <div class="status-card">
-            <div class="status-row">
-              <span class="status-label">Expiration</span>
-              <span class="status-badge">RETRY</span>
-            </div>
-            <div class="status-bar"><span style="width: 40%"></span></div>
-          </div>
+        <div class="modal-footer">
+          <a class="modal-link" href="#">I couldn&#39;t scan</a>
+          <a class="modal-link secondary" href="#">Generate new code</a>
         </div>
+        <div class="tips" aria-hidden="true"></div>
       </div>
     </div>
+
+    <script>
+      const body = document.body;
+      const connectBtn = document.querySelector(".connect-btn");
+      const overlay = document.querySelector(".overlay");
+      const closeBtn = document.querySelector(".close-btn");
+      const screens = document.querySelectorAll(".screen");
+
+      const params = new URLSearchParams(window.location.search);
+      const view = params.get("view") || "connect";
+
+      const setView = (nextView) => {
+        body.dataset.view = nextView;
+        screens.forEach((screen) => {
+          screen.classList.toggle("is-active", screen.dataset.screen === nextView);
+        });
+        body.classList.toggle("modal-open", nextView === "modal");
+      };
+
+      const openModal = () => {
+        body.classList.add("modal-open");
+      };
+
+      const closeModal = () => {
+        body.classList.remove("modal-open");
+      };
+
+      setView(view === "modal" ? "modal" : "connect");
+
+      connectBtn?.addEventListener("click", openModal);
+      overlay?.addEventListener("click", closeModal);
+      closeBtn?.addEventListener("click", closeModal);
+    </script>
   </body>
 </html>
